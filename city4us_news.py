@@ -246,7 +246,6 @@ def _main():
         count += 1
         for user in telegram_chat_id:
             bot.send_message(chat_id=user, text="{}".format(news[1]))
-        print(news)
 
 
 run = True
