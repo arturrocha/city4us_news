@@ -11,8 +11,10 @@ from _telegram import *
 class AppURLopener(urllib.request.FancyURLopener):
     version = 'Mozilla/5.0'
 
+
 count = 0
 bot = telegram.Bot(token=bot_token)
+bot_admin = telegram.Bot(token=bot_admin)
 
 
 # var in file _telegram
@@ -21,6 +23,10 @@ bot = telegram.Bot(token=bot_token)
 
 # to do
 # transportation, urban design and urban planning
+
+
+def debug(message, user):
+    bot_admin.send_message(chat_id=user, text="{}".format(message))
 
 
 def today_article(_date, mode=1):
@@ -128,14 +134,19 @@ def today_article(_date, mode=1):
 
 def _main():
     global count
+    global telegram_chat_id_admin
     url = ["https://www.citylab.com/posts/",
         "https://www.mobilize.org.br/noticias/",
         "https://urbanidades.arq.br/",
         "https://caosplanejado.com/",
         "https://www.archdaily.com/"]
-    opener = AppURLopener()
+    try:
+        opener = AppURLopener()
+    except Exception as e:
+        debug(e, telegram_chat_id_admin)
     news_list = []
     for site in url:
+        print(site)
         try:
             response = opener.open(site)
             soup = BeautifulSoup(response, "html.parser")
@@ -159,7 +170,7 @@ def _main():
                                     var = description, sub_url
                                     news_list.append(var)
                             except Exception as e:
-                                print(e)
+                                debug(e, telegram_chat_id_admin)                                
                         if 'www' in sub_url and 'blogs' in sub_url and '?p=' in sub_url:
                             print(sub_url)
                             try:
@@ -174,7 +185,7 @@ def _main():
                                     var = description, sub_url
                                     news_list.append(var)
                             except Exception as e:
-                                print(e)
+                                debug(e, telegram_chat_id_admin)
             elif site is 'https://caosplanejado.com/':
                 result_search = str(soup.find_all('h1'))
                 a = result_search.split(' ')
@@ -193,7 +204,7 @@ def _main():
                                 var = description, sub_url
                                 news_list.append(var)
                         except Exception as e:
-                            print(e)
+                            debug(e, telegram_chat_id_admin)
             elif site is 'https://www.archdaily.com/':
                 result_search = str(soup.find_all('h3')).split(' ')
                 for sub_url in result_search:
@@ -214,7 +225,7 @@ def _main():
                                         var = description, sub_url
                                         news_list.append(var)
                         except Exception as e:
-                            print(e)
+                            debug(e, telegram_chat_id_admin)
             elif site is "https://www.citylab.com/posts/":
                 result_search = str(soup.find_all('section')).split(" ")
                 empty_list = []
@@ -236,15 +247,16 @@ def _main():
                             var = description, sub_url
                             news_list.append(var)
                     except Exception as e:
-                        print(e)
+                        debug(e, telegram_chat_id_admin)
 
             else:
                 pass
         except Exception as e:
-            print(e)
+            debug(e, telegram_chat_id_admin)
     for news in news_list:
         count += 1
         for user in telegram_chat_id:
+            time.sleep(1)
             bot.send_message(chat_id=user, text="{}".format(news[1]))
 
 
