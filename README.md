@@ -1,9 +1,7 @@
 # city4us_news
 
-This is some news messager through telegram   
-
-Send /start to @city4us_news_bot   
-and email me to add you to recipient lists arthurrocha_@hotmail.com   
+To receive city4us news through telegram send /start to @city4us_news_bot  
+Within 24h you will receive messages  
 
 To replicate the bot   
 create the following variables in _telegram.py   
