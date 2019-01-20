@@ -16,8 +16,8 @@ telegram_chat_id = ['userId', 'userId']
 Install "python-telegram-bot"
 
 Current websites
-> https://www.citylab.com/posts/
-> https://www.mobilize.org.br/noticias/
-> https://urbanidades.arq.br/
-> https://caosplanejado.com/
-> https://www.archdaily.com/
+> https://www.citylab.com/posts/  
+> https://www.mobilize.org.br/noticias/  
+> https://urbanidades.arq.br/  
+> https://caosplanejado.com/  
+> https://www.archdaily.com/  
