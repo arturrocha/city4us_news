@@ -1,7 +1,6 @@
+# https://city4us.com.br/
+
 # city4us_news
-
-# > https://city4us.com.br/
-
 
 
 To receive city4us news through telegram send /start to @city4us_news_bot  
