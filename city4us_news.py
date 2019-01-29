@@ -22,7 +22,7 @@ bot_admin = telegram.Bot(token=bot_admin)
 # telegram_chat_id = ['bla', 'bla']
 
 # to do
-# transportation, urban design and urban planning
+# urban design and urban planning
 
 
 def debug(message, user):
@@ -139,7 +139,13 @@ def _main():
         "https://www.mobilize.org.br/noticias/",
         "https://urbanidades.arq.br/",
         "https://caosplanejado.com/",
-        "https://www.archdaily.com/"]
+        "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories",
+        "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
+        "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
+        
+    arch_trasportation = "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
+    arch_urbandesign = "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
+    arch_urbanplanning = "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"
     try:
         opener = AppURLopener()
     except Exception as e:
@@ -242,13 +248,49 @@ def _main():
                         _date = result_search.split('<meta content="')[1].split('T')[0]
                         description = str(soup.find_all('h1'))
                         description = description.split('headline">')[1].replace('</h1>]', '')
-
                         if today_article(_date, 2):
                             var = description, sub_url
                             news_list.append(var)
                     except Exception as e:
                         debug(e, telegram_chat_id_admin)
-
+            elif site is arch_trasportation or site is arch_urbandesign or site is irban_planning:
+                result_search = str(soup.find_all(re.compile('^a'))).split(" ")
+                empty_list = []
+                for sub_url in result_search:
+                    try:
+                        if 'href' in sub_url:
+                            if str(len(sub_url.split('/')[1])) >= 4:
+                                sub_url = 'https://www.archdaily.com' + sub_url.replace('href="', '')
+                                try:
+                                    response = opener.open(sub_url)
+                                    soup = BeautifulSoup(response, "html.parser")
+                                    result_search2 = str(soup.find_all('header'))
+                                    result_search2 = result_search2.split('ul')
+                                    description = str(soup.find_all('h1'))
+                                    description = description.split('afd-relativeposition">')[1].split('</h1>]')[0]
+                                    try:
+                                        for thing in result_search2:
+                                            if 'theDate' in thing:
+                                                _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
+                                                print(_date)
+                                                if TodayArticle(_date, 4):
+                                                    var = description, sub_url
+                                                    news_list.append(var)
+                                    except Exception as e:
+                                        time.sleep(1)
+                                        e = str(e) + ' # sub url | archdaily categories/transportation'
+                                        debug(bot_admin, e, telegram_chat_id_admin)
+                                except Exception as e:
+                                    time.sleep(1)
+                                    e = str(e) + ' # result_search2 url | archdaily categories/transportation'
+                                    debug(bot_admin, e, telegram_chat_id_admin)
+                    except Exception as e:
+                        time.sleep(1)
+                        e = str(e) + ' # sub url | archdaily categories/transportation'
+                        print(e)
+                        debug(bot_admin, e, telegram_chat_id_admin)
+                    pass
+                pass
             else:
                 pass
         except Exception as e:
