@@ -17,14 +17,6 @@ bot = telegram.Bot(token=bot_token)
 bot_admin = telegram.Bot(token=bot_admin)
 
 
-# var in file _telegram
-# bot_token = 'some id'
-# telegram_chat_id = ['bla', 'bla']
-
-# to do
-# urban design and urban planning
-
-
 def debug(message, user):
     bot_admin.send_message(chat_id=user, text="{}".format(message))
 
