@@ -5,6 +5,8 @@ import urllib.request
 import requests
 import time
 import telegram
+import re
+import sys
 from _telegram import *
 
 
@@ -17,7 +19,17 @@ bot = telegram.Bot(token=bot_token)
 bot_admin = telegram.Bot(token=bot_admin)
 
 
+def progress(count, total, site=''):
+    bar_len = 20
+    filled_len = int(round(bar_len * count / float(total)))
+    percents = round(100.0 * count / float(total), 2)
+    bar = '!' * filled_len + '.' * (bar_len - filled_len)
+    sys.stdout.write('  %s%s [%s]  %s/%s | %s...    \r' % (percents, '%', bar, count, total, site[8:30]))
+    sys.stdout.flush()
+
+
 def debug(message, user):
+    time.sleep(1)
     bot_admin.send_message(chat_id=user, text="{}".format(message))
 
 
@@ -65,7 +77,6 @@ def today_article(_date, mode=1):
         # day
         article[2] = _article[0]
 
-
     elif mode == 2:
         article = _date.split('-')
 
@@ -112,6 +123,72 @@ def today_article(_date, mode=1):
 
         del article[3]
 
+    elif mode == 4:
+        _article = _date.replace(',', '')
+        _article = _article.split(' ')
+        article = _article
+        
+        if len(_article) == 4:
+            # day
+            day = _article[1]
+            # year
+            article[0] = _article[3]
+            # month
+            month = _article[2].lower().replace(' ', '')
+        elif len(_article) == 3:
+            # day
+            day = _article[0]
+            # year
+            article[0] = _article[2]
+            # month
+            month = _article[1].lower().replace(' ', '')
+        else:
+            # fix
+            print('something broke on the date')
+            print(_article)
+            print('exiting')
+            exit()
+            
+        article = _article
+                
+        # month
+        if month == 'janeiro' or month == 'january':
+            article[1] = '01'
+        elif month == 'fevereiro' or month == 'february':
+            article[1] = '02'
+        elif 'mar' in month:
+            article[1] = '03'
+        elif month == 'abril' or month == 'april':
+            article[1] = '04'
+        elif month == 'maio' or month == 'may':
+            article[1] = '05'
+        elif month == 'junho' or month == 'june':
+            article[1] = '06'
+        elif month == 'julho' or month == 'july':
+            article[1] = '07'
+        elif month == 'agosto' or month == 'august':
+            article[1] = '08'
+        elif month == 'setembro' or month == 'september':
+            article[1] = '09'
+        elif month == 'outubro' or month == 'october':
+            article[1] = '10'
+        elif month == 'novembro' or month == 'november':
+            article[1] = '11'
+        elif month == 'dezembro' or month == 'december':
+            article[1] = '12'
+        else:
+            print('month out of scope')
+            print(article)
+            return False
+        # day
+        article[2] = day
+        
+        try:
+            del article[3]
+        except exception as e:
+            print(e)
+            print('article[#3] nothing here to delete')
+
     debug = False
 
     if not debug:
@@ -134,7 +211,7 @@ def _main():
         "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories",
         "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
         "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
-        
+
     arch_trasportation = "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
     arch_urbandesign = "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
     arch_urbanplanning = "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"
@@ -143,8 +220,11 @@ def _main():
     except Exception as e:
         debug(e, telegram_chat_id_admin)
     news_list = []
+    total = len(url)
+    loop_count = 0
     for site in url:
-        print(site)
+        loop_count += 1
+        progress(loop_count, total, site)
         try:
             response = opener.open(site)
             soup = BeautifulSoup(response, "html.parser")
@@ -155,7 +235,6 @@ def _main():
                     thing = thing.split('"')
                     for sub_url in thing:
                         if 'www' in sub_url and 'noticias' in sub_url:
-                            print(sub_url)
                             try:
                                 response = opener.open(sub_url)
                                 soup = BeautifulSoup(response, "html.parser")
@@ -170,7 +249,6 @@ def _main():
                             except Exception as e:
                                 debug(e, telegram_chat_id_admin)                                
                         if 'www' in sub_url and 'blogs' in sub_url and '?p=' in sub_url:
-                            print(sub_url)
                             try:
                                 response = opener.open(sub_url)
                                 soup = BeautifulSoup(response, "html.parser")
@@ -190,7 +268,6 @@ def _main():
                 for thing in a:
                     if 'http' in thing:
                         sub_url = thing.split('"')[1]
-                        print(sub_url)
                         try:
                             response = opener.open(sub_url)
                             soup = BeautifulSoup(response, "html.parser")
@@ -208,7 +285,6 @@ def _main():
                 for sub_url in result_search:
                     if 'href="' in sub_url:
                         sub_url = site+sub_url.replace('href="', '').replace('"', '').split('>')[0]
-                        print(sub_url)
                         try:
                             response = opener.open(sub_url)
                             soup = BeautifulSoup(response, "html.parser")
@@ -232,7 +308,6 @@ def _main():
                         if sub_url not in empty_list:
                             empty_list.append(sub_url.split('"')[1])
                 for sub_url in list(set(empty_list)):
-                    print(sub_url)
                     try:
                         response = opener.open(sub_url)
                         soup = BeautifulSoup(response, "html.parser")
@@ -245,48 +320,49 @@ def _main():
                             news_list.append(var)
                     except Exception as e:
                         debug(e, telegram_chat_id_admin)
-            elif site is arch_trasportation or site is arch_urbandesign or site is irban_planning:
+            elif site is arch_trasportation or site is arch_urbandesign or site is arch_urbanplanning:
                 result_search = str(soup.find_all(re.compile('^a'))).split(" ")
                 empty_list = []
                 for sub_url in result_search:
                     try:
                         if 'href' in sub_url:
-                            if str(len(sub_url.split('/')[1])) >= 4:
-                                sub_url = 'https://www.archdaily.com' + sub_url.replace('href="', '')
-                                try:
-                                    response = opener.open(sub_url)
-                                    soup = BeautifulSoup(response, "html.parser")
-                                    result_search2 = str(soup.find_all('header'))
-                                    result_search2 = result_search2.split('ul')
-                                    description = str(soup.find_all('h1'))
-                                    description = description.split('afd-relativeposition">')[1].split('</h1>]')[0]
+                            try:    
+                                if len(str(sub_url.split('/')[1])) == 6:
+                                    sub_url = 'https://www.archdaily.com' + sub_url.replace('href="', '')
                                     try:
-                                        for thing in result_search2:
-                                            if 'theDate' in thing:
-                                                _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
-                                                print(_date)
-                                                if TodayArticle(_date, 4):
-                                                    var = description, sub_url
-                                                    news_list.append(var)
+                                        response = opener.open(sub_url)
+                                        soup = BeautifulSoup(response, "html.parser")
+                                        result_search2 = str(soup.find_all('header'))
+                                        result_search2 = result_search2.split('ul')
+                                        description = str(soup.find_all('h1'))
+                                        description = description.split('afd-relativeposition">')[1].split('</h1>]')[0]
+                                        try:
+                                            for thing in result_search2:
+                                                if 'theDate' in thing:
+                                                    _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
+                                                    if today_article(_date, 4):
+                                                        var = description, sub_url
+                                                        news_list.append(var)
+                                        except Exception as e:
+                                            time.sleep(1)
+                                            e = str(e) + ' # sub url | archdaily categories/all'
+                                            debug(e, telegram_chat_id_admin)
                                     except Exception as e:
                                         time.sleep(1)
-                                        e = str(e) + ' # sub url | archdaily categories/transportation'
-                                        debug(bot_admin, e, telegram_chat_id_admin)
-                                except Exception as e:
-                                    time.sleep(1)
-                                    e = str(e) + ' # result_search2 url | archdaily categories/transportation'
-                                    debug(bot_admin, e, telegram_chat_id_admin)
+                                        e = str(e) + ' # result_search2 url | archdaily categories/all'
+                                        debug(e, telegram_chat_id_admin)
+                            except Exception as e:
+                                e = str(e) + ' # archdaily split /'
+                                debug(e, telegram_chat_id_admin)
                     except Exception as e:
                         time.sleep(1)
-                        e = str(e) + ' # sub url | archdaily categories/transportation'
-                        print(e)
-                        debug(bot_admin, e, telegram_chat_id_admin)
-                    pass
-                pass
-            else:
-                pass
+                        e = str(e) + ' # sub url | archdaily***'
+                        debug(e, telegram_chat_id_admin)
         except Exception as e:
+            e = str(e) + ' #####'
             debug(e, telegram_chat_id_admin)
+
+    news_list = set(list(news_list))
     for news in news_list:
         count += 1
         for user in telegram_chat_id:
@@ -300,5 +376,6 @@ if run:
     _main()
     for user in telegram_chat_id:
         bot.send_message(chat_id=user, text="runtime={}, news={}".format(round((time.time() - t1), 2), count))
+        print("runtime={}m, news={}".format(round((time.time() - t1)/60, 2), count))
     exit()
 
