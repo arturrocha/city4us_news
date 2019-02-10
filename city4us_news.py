@@ -130,7 +130,9 @@ def today_article(_date, mode=1):
         
         if len(_article) == 4:
             # day
-            day = _article[1]
+            day = str(_article[1])
+            if len(day) == 1:
+                day = '0' + day
             # year
             article[0] = _article[3]
             # month
@@ -344,18 +346,18 @@ def _main():
                                                         var = description, sub_url
                                                         news_list.append(var)
                                         except Exception as e:
-                                            time.sleep(1)
+                                            time.sleep(0.4)
                                             e = str(e) + ' # sub url | archdaily categories/all'
                                             debug(e, telegram_chat_id_admin)
                                     except Exception as e:
-                                        time.sleep(1)
+                                        time.sleep(0.4)
                                         e = str(e) + ' # result_search2 url | archdaily categories/all'
                                         debug(e, telegram_chat_id_admin)
                             except Exception as e:
                                 e = str(e) + ' # archdaily split /'
                                 debug(e, telegram_chat_id_admin)
                     except Exception as e:
-                        time.sleep(1)
+                        time.sleep(0.4)
                         e = str(e) + ' # sub url | archdaily***'
                         debug(e, telegram_chat_id_admin)
         except Exception as e:
@@ -366,7 +368,7 @@ def _main():
     for news in news_list:
         count += 1
         for user in telegram_chat_id:
-            time.sleep(1)
+            time.sleep(0.4)
             bot.send_message(chat_id=user, text="{}".format(news[1]))
 
 
