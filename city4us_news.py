@@ -191,6 +191,12 @@ def today_article(_date, mode=1):
             print(e)
             print('article[#3] nothing here to delete')
 
+    elif mode == 5:
+        article = []
+        article.append(_date.split('.')[2])
+        article.append(_date.split('.')[1])
+        article.append(_date.split('.')[0])
+
     debug = False
 
     if not debug:
@@ -206,7 +212,8 @@ def today_article(_date, mode=1):
 def _main():
     global count
     global telegram_chat_id_admin
-    url = ["https://www.citylab.com/posts/",
+    url = ["https://archi.ru/en",
+        "https://www.citylab.com/posts/",
         "https://www.mobilize.org.br/noticias/",
         "https://urbanidades.arq.br/",
         "https://caosplanejado.com/",
@@ -264,6 +271,28 @@ def _main():
                                     news_list.append(var)
                             except Exception as e:
                                 debug(e, telegram_chat_id_admin)
+            elif site is "https://archi.ru/en":
+                result_search = str(soup.find_all('header'))
+                a = result_search.split(' ')
+                for url in a:
+                    if 'http' in url:
+                        sub_url = url.split('"')[1]
+                        blob = sub_url.split('/')
+                        for thing in blob:
+                            try:
+                                int(thing)
+                                is_news = True
+                            except Exception as e:
+                                is_news = False
+                            if is_news:
+                                try:
+                                    response = opener.open(sub_url)
+                                    soup = BeautifulSoup(response, "html.parser")
+                                    _date = str(soup.find_all('div', {'class':'date'})).split(',')[0].replace('</div>', '').replace('[<div class="date">', '')
+                                    if today_article(_date, 5):
+                                        news_list.append(sub_url)
+                                except Exception as e:
+                                    print(e)                        
             elif site is 'https://caosplanejado.com/':
                 result_search = str(soup.find_all('h1'))
                 a = result_search.split(' ')
