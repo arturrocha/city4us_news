@@ -228,8 +228,6 @@ def _main():
         "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
         "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
 
-    url = ["https://urbanidades.arq.br/"]
-
     arch_trasportation = "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
     arch_urbandesign = "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
     arch_urbanplanning = "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"
