@@ -16,6 +16,8 @@ class AppURLopener(urllib.request.FancyURLopener):
 
 
 count = 0
+news_counter = 0
+
 bot = telegram.Bot(token=bot_token)
 bot_admin = telegram.Bot(token=bot_admin)
 
@@ -219,6 +221,7 @@ def shell_cmd(cmd):
 def _main():
     global count
     global telegram_chat_id_admin
+    global news_counter
     url = ["https://archi.ru/en",
         "https://www.citylab.com/posts/",
         "https://www.mobilize.org.br/noticias/",
@@ -257,6 +260,7 @@ def _main():
                                 result_search = str(soup.find_all('p'))
                                 c = result_search.split('<span id="ctl00_ContentPlaceHolder1_lblData">')
                                 _date = c[1].split('</span>')[0]
+                                news_counter += 1
                                 description = str(soup.find_all('title'))
                                 description = description.replace('<title>', '').replace('</title>', '')
                                 if today_article(_date):
@@ -271,6 +275,7 @@ def _main():
                                 result_search = str(soup.find_all('p'))
                                 d = result_search.split('</a> no dia ')
                                 _date = d[1].split('</div>')[0]
+                                news_counter += 1
                                 description = str(soup.find_all('title'))
                                 description = description.replace('<title>', '').replace('</title>', '')
                                 if today_article(_date):
@@ -296,6 +301,7 @@ def _main():
                                     response = opener.open(sub_url)
                                     soup = BeautifulSoup(response, "html.parser")
                                     _date = str(soup.find_all('div', {'class':'date'})).split(',')[0].replace('</div>', '').replace('[<div class="date">', '')
+                                    news_counter += 1
                                     if today_article(_date, 5):
                                         news_list.append(sub_url)
                                 except Exception as e:
@@ -311,6 +317,7 @@ def _main():
                             soup = BeautifulSoup(response, "html.parser")
                             result_search = str(soup.find_all('time'))
                             _date = result_search.split('"')[3].split('T')[0]
+                            news_counter += 1
                             description = str(soup.find_all('h1'))
                             description = description.split('">')[1].replace('</h1>]', '')
                             if today_article(_date, 2):
@@ -333,6 +340,7 @@ def _main():
                             for thing in result_search:
                                 if 'theDate' in thing:
                                     _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
+                                    news_counter += 1
                                     if today_article(_date, 3):
                                         var = description, sub_url
                                         news_list.append(var)
@@ -351,6 +359,7 @@ def _main():
                         soup = BeautifulSoup(response, "html.parser")
                         result_search = str(soup.find_all('article'))
                         _date = result_search.split('<meta content="')[1].split('T')[0]
+                        news_counter += 1
                         description = str(soup.find_all('h1'))
                         description = description.split('headline">')[1].replace('</h1>]', '')
                         if today_article(_date, 2):
@@ -378,6 +387,7 @@ def _main():
                                             for thing in result_search2:
                                                 if 'theDate' in thing:
                                                     _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
+                                                    news_counter += 1
                                                     if today_article(_date, 4):
                                                         var = description, sub_url
                                                         news_list.append(var)
@@ -420,6 +430,7 @@ def _main():
                             if str(article[3]) == str(yesterday[0]) and str(article[4]) == str(yesterday[1]):
                                 urbanidades_news_list.append('/'.join(article))
                 for news in list(set(urbanidades_news_list)):
+                    news_counter += 1
                     urbanidades_yesterday_news = []
                     try:
                         cmd = 'wget {0} -O news.txt'.format(news)
@@ -443,7 +454,7 @@ def _main():
     for news in news_list:
         count += 1
         for user in telegram_chat_id:
-            time.sleep(0.4)
+            time.sleep(0.1)
             bot.send_message(chat_id=user, text="{}".format(news[1]))
 
 
@@ -453,6 +464,6 @@ if run:
     _main()
     for user in telegram_chat_id:
         bot.send_message(chat_id=user, text="runtime={}, news={}".format(round((time.time() - t1), 2), count))
-        print("runtime={}m, news={}".format(round((time.time() - t1)/60, 2), count))
+        print("runtime={}m, news={}, total_news={}".format(round((time.time() - t1)/60, 2), count, news_counter))
     exit()
 
