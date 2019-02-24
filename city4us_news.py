@@ -7,6 +7,7 @@ import time
 import telegram
 import re
 import sys
+import subprocess
 from _telegram import *
 
 
@@ -209,6 +210,12 @@ def today_article(_date, mode=1):
         return True
 
 
+def shell_cmd(cmd):
+    result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = result.communicate()
+    return output
+   
+
 def _main():
     global count
     global telegram_chat_id_admin
@@ -220,6 +227,8 @@ def _main():
         "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories",
         "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
         "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
+
+    url = ["https://urbanidades.arq.br/"]
 
     arch_trasportation = "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
     arch_urbandesign = "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
@@ -392,7 +401,46 @@ def _main():
         except Exception as e:
             e = str(e) + ' #####'
             debug(e, telegram_chat_id_admin)
-
+            print(e)
+        if site is "https://urbanidades.arq.br/":
+            try:
+                cmd = 'curl {0}'.format(site)
+                result = str(shell_cmd(cmd)).split('<article id="')
+                yesterday = datetime.strftime(datetime.now() - timedelta(1), '%Y-%m-%d')
+                yesterday = yesterday.split('-')
+                str_yesterday = '-'.join(yesterday)
+                urbanidades_news_list = []
+                for blob in result:
+                    blob = blob.split(' ')
+                    for article_blob in blob:
+                        if 'href="https://urbanidades.arq.br/' in article_blob:
+                            article = article_blob.split('"')[1].split('/')
+                            try:
+                                del(article[6])
+                            except Exception as e:
+                                pass
+                            if str(article[3]) == str(yesterday[0]) and str(article[4]) == str(yesterday[1]):
+                                urbanidades_news_list.append('/'.join(article))
+                for news in list(set(urbanidades_news_list)):
+                    urbanidades_yesterday_news = []
+                    try:
+                        cmd = 'wget {0} -O news.txt'.format(news)
+                        shell_cmd(cmd)
+                        with open('news.txt', 'r') as news_txt:
+                            data = str(news_txt.read()).split('time')
+                            for blob in data:
+                                blob2 = blob.split('"')
+                                for thing in blob2:
+                                    if str_yesterday in thing:
+                                        urbanidades_yesterday_news.append(news)
+                        cmd = 'rm news.txt'
+                        shell_cmd(cmd)
+                    except Exception as e:
+                        print(e)
+            except Exception as e:
+                print(e)
+    for news in urbanidades_yesterday_news:
+        news_list.append(news)
     news_list = set(list(news_list))
     for news in news_list:
         count += 1
