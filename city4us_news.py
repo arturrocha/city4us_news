@@ -440,8 +440,11 @@ def _main():
                         print(e)
             except Exception as e:
                 print(e)
-    for news in urbanidades_yesterday_news:
-        news_list.append(news)
+    try:
+        for news in urbanidades_yesterday_news:
+            news_list.append(news)
+    except Exception as e:
+        print(e)
     news_list = set(list(news_list))
     for news in news_list:
         count += 1
@@ -455,7 +458,7 @@ if run:
     t1 = time.time()
     _main()
     for user in telegram_chat_id:
-        bot.send_message(chat_id=user, text="runtime={}, news={}".format(round((time.time() - t1), 2), count))
+        bot.send_message(chat_id=user, text="runtime={}, news={}, total_news={}".format(round((time.time() - t1), 2), count, news_counter))
         print("runtime={}m, news={}, total_news={}".format(round((time.time() - t1)/60, 2), count, news_counter))
     exit()
 
