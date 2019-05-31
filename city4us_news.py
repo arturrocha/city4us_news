@@ -6,7 +6,7 @@ import time
 import telegram
 import re
 import subprocess
-from _telegram import *
+from _telegram import *, telegram_chat_id
 from lib.helper import progress, today_article, shell_cmd
 
 
@@ -26,11 +26,11 @@ def debug(message, user):
     bot_admin.send_message(chat_id=user, text="{}".format(message))
 
 
-def _main():
+def main():
     global count
     global telegram_chat_id_admin
     global news_counter
-    url = ["https://archi.ru/en",
+    url_list = ["https://archi.ru/en",
         "https://www.citylab.com/posts/",
         "https://www.mobilize.org.br/noticias/",
         "https://urbanidades.arq.br/",
@@ -45,14 +45,16 @@ def _main():
         "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
     arch_urbanplanning = \
         "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"
+
     try:
         opener = AppURLopener()
     except Exception as e:
         debug(e, telegram_chat_id_admin)
+
     news_list = []
-    total = len(url)
+    total = len(url_list)
     loop_count = 0
-    for site in url:
+    for site in url_list:
         loop_count += 1
         progress(loop_count, total, site)
         try:
@@ -275,7 +277,7 @@ def _main():
 run = True
 if run:
     t1 = time.time()
-    _main()
+    main()
     for user in telegram_chat_id:
         bot.send_message(chat_id=user, text="runtime={}, news={}, total_news={}"
                          .format(round((time.time() - t1), 2), count, news_counter))
