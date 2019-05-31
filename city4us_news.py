@@ -7,7 +7,7 @@ import telegram
 import re
 import subprocess
 from _telegram import *
-from lib.helper import progress
+from lib.helper import progress, today_article
 
 
 class AppURLopener(urllib.request.FancyURLopener):
