@@ -7,7 +7,7 @@ import telegram
 import re
 import subprocess
 from _telegram import *
-from lib.helper import progress, today_article
+from lib.helper import progress, today_article, shell_cmd
 
 
 class AppURLopener(urllib.request.FancyURLopener):
@@ -25,12 +25,6 @@ def debug(message, user):
     time.sleep(1)
     bot_admin.send_message(chat_id=user, text="{}".format(message))
 
-
-def shell_cmd(cmd):
-    result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    output = result.communicate()
-    return output
-   
 
 def _main():
     global count

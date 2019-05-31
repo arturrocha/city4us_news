@@ -19,6 +19,12 @@ def progress(count, total, site=''):
     sys.stdout.flush()
 
 
+def shell_cmd(cmd):
+    result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = result.communicate()
+    return output
+
+
 def today_article(_date, mode=1):
     yesterday = datetime.strftime(datetime.now() - timedelta(1), '%Y-%m-%d')
     yesterday = yesterday.split('-')
