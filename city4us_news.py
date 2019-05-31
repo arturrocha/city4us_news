@@ -45,9 +45,12 @@ def _main():
         "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
         "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
 
-    arch_trasportation = "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
-    arch_urbandesign = "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
-    arch_urbanplanning = "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"
+    arch_trasportation = \
+        "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
+    arch_urbandesign = \
+        "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories"
+    arch_urbanplanning = \
+        "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"
     try:
         opener = AppURLopener()
     except Exception as e:
@@ -280,7 +283,8 @@ if run:
     t1 = time.time()
     _main()
     for user in telegram_chat_id:
-        bot.send_message(chat_id=user, text="runtime={}, news={}, total_news={}".format(round((time.time() - t1), 2), count, news_counter))
+        bot.send_message(chat_id=user, text="runtime={}, news={}, total_news={}"
+                         .format(round((time.time() - t1), 2), count, news_counter))
         print("runtime={}m, news={}, total_news={}".format(round((time.time() - t1)/60, 2), count, news_counter))
     exit()
 
