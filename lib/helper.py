@@ -7,7 +7,7 @@ import telegram
 import re
 import sys
 import subprocess
-from _telegram import *
+# from .telegram_token import *
 
 
 def progress(count, total, site=''):
