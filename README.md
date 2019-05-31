@@ -10,7 +10,9 @@ Within 24h you will receive messages
 Current websites   
 > https://www.citylab.com/posts  
 > https://www.mobilize.org.br/noticias  
+> https://www.archdaily.com  < filter for transportation, urban design and urban planning  
+
+WIP  
 > https://urbanidades.arq.br  
 > https://caosplanejado.com  
-> https://www.archdaily.com  < filter for transportation, urban design and urban planning  
 > https://archi.ru  

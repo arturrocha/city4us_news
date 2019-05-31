@@ -5,8 +5,8 @@ import urllib.request
 import time
 import telegram
 import re
-import subprocess
-from _telegram import *
+# import subprocess
+from lib.telegram_token import *
 from lib.helper import progress, today_article, shell_cmd
 
 
