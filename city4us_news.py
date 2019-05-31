@@ -1,15 +1,13 @@
 #!/usr/bin/python3
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import urllib.request
-import requests
 import time
 import telegram
 import re
-import sys
 import subprocess
 from _telegram import *
-from .helper import progress
+from lib.helper import progress
 
 
 class AppURLopener(urllib.request.FancyURLopener):
