@@ -6,7 +6,7 @@ import time
 import telegram
 import re
 import subprocess
-from _telegram import *, telegram_chat_id
+from _telegram import *
 from lib.helper import progress, today_article, shell_cmd
 
 
