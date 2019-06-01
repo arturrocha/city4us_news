@@ -18,7 +18,6 @@ def main():
                 "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories",
                 "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
                 "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
-    url_list = ["https://urbanidades.arq.br/"]
 
     for site in url_list:
         try:
