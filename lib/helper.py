@@ -24,7 +24,6 @@ class ProcessSiteThread(threading.Thread):
                 bot.send_message(chat_id=user, text="{}".format(news[1]))
 
 
-
 def process_site(site):
     arch_trasportation = \
         "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories"
