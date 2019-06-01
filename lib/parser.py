@@ -1,16 +1,23 @@
 import urllib.request
 import re
 import time
+import subprocess
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from .helper import today_article, shell_cmd
 
 
 class AppURLopener(urllib.request.FancyURLopener):
     version = 'Mozilla/5.0'
 
 
+def shell_cmd(cmd):
+    result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = result.communicate()
+    return output
+
+
 def parse_archirussia(site):
+    t1 = time.time()
     try:
         news_list = []
         opener = AppURLopener()
@@ -31,7 +38,6 @@ def parse_archirussia(site):
                     is_news = True
                 except Exception as e:
                     is_news = False
-                    print(e, 'arch.ru > thing in blob')
                 if is_news:
                     try:
                         response = opener.open(sub_url)
@@ -41,11 +47,15 @@ def parse_archirussia(site):
                         if today_article(_date, 5):
                             news_list.append(sub_url)
                     except Exception as e:
-                        print(e)
+                        # print(e)
+                        pass
+    td = round((time.time() - t1)/60, 2)
+    print(site, td)
     return news_list
 
 
 def parse_caosplanejado(site):
+    t1 = time.time()
     try:
         news_list = []
         opener = AppURLopener()
@@ -71,10 +81,13 @@ def parse_caosplanejado(site):
                     news_list.append(var)
             except Exception as e:
                 print(e, 'caos planejado error')
+    td = round((time.time() - t1) / 60, 2)
+    print(site, td)
     return news_list
 
 
 def parse_mobilize(site):
+    t1 = time.time()
     try:
         news_list = []
         opener = AppURLopener()
@@ -88,7 +101,6 @@ def parse_mobilize(site):
     for thing in b:
         thing = thing.split('"')
         for sub_url in thing:
-
             if 'www' in sub_url and 'noticias' in sub_url:
                 try:
                     response = opener.open(sub_url)
@@ -96,13 +108,15 @@ def parse_mobilize(site):
                     result_search = str(soup.find_all('p'))
                     c = result_search.split('<span id="ctl00_ContentPlaceHolder1_lblData">')
                     _date = c[1].split('</span>')[0]
+                    print('mobilize', var, _date)
                     description = str(soup.find_all('title'))
                     description = description.replace('<title>', '').replace('</title>', '')
                     if today_article(_date):
                         var = description, sub_url
                         news_list.append(var)
                 except Exception as e:
-                    print(e, 'error for mobilize www and noticias in if')
+                    # print(e, 'error for mobilize www and noticias in if')
+                    pass
 
             if 'www' in sub_url and 'blogs' in sub_url and '?p=' in sub_url:
                 try:
@@ -117,11 +131,15 @@ def parse_mobilize(site):
                         var = description, sub_url
                         news_list.append(var)
                 except Exception as e:
-                    print(e, 'error for mobilize www and blogs and ?p in if')
+                    # print(e, 'error for mobilize www and blogs and ?p in if')
+                    pass
+    td = round((time.time() - t1) / 60, 2)
+    print(site, td)
     return news_list
 
 
 def parse_archdaily(site):
+    t1 = time.time()
     try:
         news_list = []
         opener = AppURLopener()
@@ -152,24 +170,23 @@ def parse_archdaily(site):
                                             var = description, sub_url
                                             news_list.append(var)
                             except Exception as e:
-                                time.sleep(0.4)
+                                time.sleep(0.3)
                                 e = str(e) + ' # sub url | archdaily categories/all'
-                                print(e)
                         except Exception as e:
-                            time.sleep(0.4)
+                            time.sleep(0.3)
                             e = str(e) + ' # result_search2 url | archdaily categories/all'
-                            print(e)
                 except Exception as e:
                     e = str(e) + ' # archdaily split /'
-                    print(e)
         except Exception as e:
-            time.sleep(0.4)
+            time.sleep(0.3)
             e = str(e) + ' # sub url | archdaily***'
-            print(e)
+    td = round((time.time() - t1) / 60, 2)
+    print(site, td)
     return news_list
 
 
 def parse_citylab(site):
+    t1 = time.time()
     try:
         news_list = []
         opener = AppURLopener()
@@ -196,11 +213,15 @@ def parse_citylab(site):
                 var = description, sub_url
                 news_list.append(var)
         except Exception as e:
-            print(e, 'citylab error sub_url')
+            # print(e, 'citylab error sub_url')
+            pass
+    td = round((time.time() - t1) / 60, 2)
+    print(site, td)
     return news_list
 
 
 def parse_urbanidades(site):
+    t1 = time.time()
     try:
         news_list = []
         cmd = 'curl {0}'.format(site)
@@ -218,7 +239,7 @@ def parse_urbanidades(site):
                         del (article[6])
                     except Exception as e:
                         e = str(e) + ' # urbanidades article_blob'
-                        print(e)
+                        # print(e)
                     if str(article[3]) == str(yesterday[0]) and str(article[4]) == str(yesterday[1]):
                         urbanidades_news_list.append('/'.join(article))
         for news in list(set(urbanidades_news_list)):
@@ -235,8 +256,187 @@ def parse_urbanidades(site):
                 cmd = 'rm news.txt'
                 shell_cmd(cmd)
             except Exception as e:
-                print(e)
+                # print(e)
+                pass
     except Exception as e:
-        print(e)
+        # print(e)
         return
+    td = round((time.time() - t1) / 60, 2)
+    print(site, td)
     return news_list
+
+
+def today_article(_date, mode=1):
+    yesterday = datetime.strftime(datetime.now() - timedelta(1), '%Y-%m-%d')
+    yesterday = yesterday.split('-')
+    if mode == 1:
+        _article = _date.split(' de ')
+        article = _date.split(' de ')
+
+        # year
+        article[0] = _article[2]
+
+        # month
+        month = _article[1].lower().replace(' ', '')
+        if month == 'janeiro' or month == 'january':
+            article[1] = '01'
+        elif month == 'fevereiro' or month == 'february':
+            article[1] = '02'
+        elif 'mar' in month:
+            article[1] = '03'
+        elif month == 'abril' or month == 'april':
+            article[1] = '04'
+        elif month == 'maio' or month == 'may':
+            article[1] = '05'
+        elif month == 'junho' or month == 'june':
+            article[1] = '06'
+        elif month == 'julho' or month == 'july':
+            article[1] = '07'
+        elif month == 'agosto' or month == 'august':
+            article[1] = '08'
+        elif month == 'setembro' or month == 'september':
+            article[1] = '09'
+        elif month == 'outubro' or month == 'october':
+            article[1] = '10'
+        elif month == 'novembro' or month == 'november':
+            article[1] = '11'
+        elif month == 'dezembro' or month == 'december':
+            article[1] = '12'
+        else:
+            print('month out of scope')
+            print(article)
+            exit()
+
+        # day
+        article[2] = _article[0]
+
+    elif mode == 2:
+        article = _date.split('-')
+
+    elif mode == 3:
+        _article = _date.replace(',', '')
+        _article = _article.split(' ')
+        day = _article[1]
+        article = _article
+
+        # year
+        article[0] = _article[3]
+        # month
+        month = _article[2].lower().replace(' ', '')
+        if month == 'janeiro' or month == 'january':
+            article[1] = '01'
+        elif month == 'fevereiro' or month == 'february':
+            article[1] = '02'
+        elif 'mar' in month:
+            article[1] = '03'
+        elif month == 'abril' or month == 'april':
+            article[1] = '04'
+        elif month == 'maio' or month == 'may':
+            article[1] = '05'
+        elif month == 'junho' or month == 'june':
+            article[1] = '06'
+        elif month == 'julho' or month == 'july':
+            article[1] = '07'
+        elif month == 'agosto' or month == 'august':
+            article[1] = '08'
+        elif month == 'setembro' or month == 'september':
+            article[1] = '09'
+        elif month == 'outubro' or month == 'october':
+            article[1] = '10'
+        elif month == 'novembro' or month == 'november':
+            article[1] = '11'
+        elif month == 'dezembro' or month == 'december':
+            article[1] = '12'
+        else:
+            # print('month out of scope')
+            # print(article)
+            exit()
+        # day
+        article[2] = day
+
+        del article[3]
+
+    elif mode == 4:
+        _article = _date.replace(',', '')
+        _article = _article.split(' ')
+        article = _article
+
+        if len(_article) == 4:
+            # day
+            day = str(_article[1])
+            if len(day) == 1:
+                day = '0' + day
+            # year
+            article[0] = _article[3]
+            # month
+            month = _article[2].lower().replace(' ', '')
+        elif len(_article) == 3:
+            # day
+            day = _article[0]
+            # year
+            article[0] = _article[2]
+            # month
+            month = _article[1].lower().replace(' ', '')
+        else:
+            # fix
+            print('something broke on the date')
+            print(_article)
+            print('exiting')
+            exit()
+
+        article = _article
+
+        # month
+        if month == 'janeiro' or month == 'january':
+            article[1] = '01'
+        elif month == 'fevereiro' or month == 'february':
+            article[1] = '02'
+        elif 'mar' in month:
+            article[1] = '03'
+        elif month == 'abril' or month == 'april':
+            article[1] = '04'
+        elif month == 'maio' or month == 'may':
+            article[1] = '05'
+        elif month == 'junho' or month == 'june':
+            article[1] = '06'
+        elif month == 'julho' or month == 'july':
+            article[1] = '07'
+        elif month == 'agosto' or month == 'august':
+            article[1] = '08'
+        elif month == 'setembro' or month == 'september':
+            article[1] = '09'
+        elif month == 'outubro' or month == 'october':
+            article[1] = '10'
+        elif month == 'novembro' or month == 'november':
+            article[1] = '11'
+        elif month == 'dezembro' or month == 'december':
+            article[1] = '12'
+        else:
+            # print('month out of scope')
+            # print(article)
+            return False
+        # day
+        article[2] = day
+
+        try:
+            del article[3]
+        except Exception as e:
+            print(e)
+            print('article[#3] nothing here to delete')
+
+    elif mode == 5:
+        article = []
+        article.append(_date.split('.')[2])
+        article.append(_date.split('.')[1])
+        article.append(_date.split('.')[0])
+
+    debug = False
+
+    if not debug:
+        if yesterday == article:
+            return True
+        else:
+            return False
+    else:
+        print(yesterday, article)
+        return True
