@@ -2,6 +2,7 @@ import threading
 import time
 import telegram
 import sys
+import logging
 from .telegram_token import *
 from .parser import parse_archirussia, parse_caosplanejado, \
     parse_mobilize, parse_archdaily, parse_citylab, parse_urbanidades
@@ -17,7 +18,8 @@ class ProcessSiteThread(threading.Thread):
         results = process_site(self.site)
         news_list = set(list(results))
         bot = telegram.Bot(token=bot_token)
-        print('***** total news for {} = {}'.format(self.site, len(news_list)))
+        logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+        logging.info('site = {}, news = {}'.format(self.site.split('https://')[1].split('/')[0], len(news_list)))
         for news in news_list:
             for user in self.telegram_chat_id:
                 time.sleep(1)

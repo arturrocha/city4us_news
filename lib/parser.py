@@ -2,9 +2,9 @@ import urllib.request
 import re
 import time
 import subprocess
+import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-
 
 class AppURLopener(urllib.request.FancyURLopener):
     version = 'Mozilla/5.0'
@@ -17,6 +17,7 @@ def shell_cmd(cmd):
 
 
 def parse_archirussia(site):
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
     t1 = time.time()
     try:
         news_list = []
@@ -44,13 +45,14 @@ def parse_archirussia(site):
                         soup = BeautifulSoup(response, "html.parser")
                         _date = str(soup.find_all('div', {'class': 'date'})).split(',')[0]
                         _date = _date.replace('</div>', '').replace('[<div class="date">', '')
+                        logging.info('url = {}, date = {}'.format(sub_url, _date))
                         if today_article(_date, 5):
                             news_list.append(sub_url)
                     except Exception as e:
                         # print(e)
                         pass
     td = round((time.time() - t1)/60, 2)
-    print(site, td)
+    logging.info('site = {}, time = {}m'.format(site.split('https://')[1].split('/')[0], td))
     return news_list
 
 
@@ -76,13 +78,15 @@ def parse_caosplanejado(site):
                 _date = result_search.split('"')[3].split('T')[0]
                 description = str(soup.find_all('h1'))
                 description = description.split('">')[1].replace('</h1>]', '')
+                logging.info('url = {}, date = {}'.format(sub_url, _date))
                 if today_article(_date, 2):
                     var = description, sub_url
                     news_list.append(var)
             except Exception as e:
                 print(e, 'caos planejado error')
     td = round((time.time() - t1) / 60, 2)
-    print(site, td)
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+    logging.info('site = {}, time = {}m'.format(site.split('https://')[1].split('/')[0], td))
     return news_list
 
 
@@ -108,9 +112,9 @@ def parse_mobilize(site):
                     result_search = str(soup.find_all('p'))
                     c = result_search.split('<span id="ctl00_ContentPlaceHolder1_lblData">')
                     _date = c[1].split('</span>')[0]
-                    print('mobilize', var, _date)
                     description = str(soup.find_all('title'))
                     description = description.replace('<title>', '').replace('</title>', '')
+                    logging.info('url = {}, date = {}'.format(sub_url, _date))
                     if today_article(_date):
                         var = description, sub_url
                         news_list.append(var)
@@ -127,6 +131,7 @@ def parse_mobilize(site):
                     _date = d[1].split('</div>')[0]
                     description = str(soup.find_all('title'))
                     description = description.replace('<title>', '').replace('</title>', '')
+                    logging.info('url = {}, date = {}'.format(sub_url, _date))
                     if today_article(_date):
                         var = description, sub_url
                         news_list.append(var)
@@ -134,7 +139,8 @@ def parse_mobilize(site):
                     # print(e, 'error for mobilize www and blogs and ?p in if')
                     pass
     td = round((time.time() - t1) / 60, 2)
-    print(site, td)
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+    logging.info('site = {}, time = {}m'.format(site.split('https://')[1].split('/')[0], td))
     return news_list
 
 
@@ -166,6 +172,7 @@ def parse_archdaily(site):
                                 for thing in result_search2:
                                     if 'theDate' in thing:
                                         _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
+                                        logging.info('url = {}, date = {}'.format(sub_url, _date))
                                         if today_article(_date, 4):
                                             var = description, sub_url
                                             news_list.append(var)
@@ -181,7 +188,8 @@ def parse_archdaily(site):
             time.sleep(0.3)
             e = str(e) + ' # sub url | archdaily***'
     td = round((time.time() - t1) / 60, 2)
-    print(site, td)
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+    logging.info('site = {}, time = {}m'.format(site.split('https://')[1].split('/')[0], td))
     return news_list
 
 
@@ -209,6 +217,7 @@ def parse_citylab(site):
             _date = result_search.split('<meta content="')[1].split('T')[0]
             description = str(soup.find_all('h1'))
             description = description.split('headline">')[1].replace('</h1>]', '')
+            logging.info('url = {}, date = {}'.format(sub_url, _date))
             if today_article(_date, 2):
                 var = description, sub_url
                 news_list.append(var)
@@ -216,7 +225,8 @@ def parse_citylab(site):
             # print(e, 'citylab error sub_url')
             pass
     td = round((time.time() - t1) / 60, 2)
-    print(site, td)
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+    logging.info('site = {}, time = {}m'.format(site.split('https://')[1].split('/')[0], td))
     return news_list
 
 
@@ -236,33 +246,46 @@ def parse_urbanidades(site):
                 if 'href="https://urbanidades.arq.br/' in article_blob:
                     article = article_blob.split('"')[1].split('/')
                     try:
-                        del (article[6])
-                    except Exception as e:
-                        e = str(e) + ' # urbanidades article_blob'
-                        # print(e)
-                    if str(article[3]) == str(yesterday[0]) and str(article[4]) == str(yesterday[1]):
+                        del(article[6])
+                        if str(article[3]) == str(yesterday[0]) and str(article[4]) == str(yesterday[1]):
+                            urbanidades_news_list.append('/'.join(article))
+                    except:
                         urbanidades_news_list.append('/'.join(article))
         for news in list(set(urbanidades_news_list)):
+            print(news)
             try:
-                cmd = 'wget {0} -O news.txt'.format(news)
-                shell_cmd(cmd)
+                shell_cmd('wget {0} -O news.txt'.format(news))
                 with open('news.txt', 'r') as news_txt:
                     data = str(news_txt.read()).split('time')
                     for blob in data:
                         blob2 = blob.split('"')
                         for thing in blob2:
-                            if str_yesterday in thing:
-                                news_list.append(news)
-                cmd = 'rm news.txt'
-                shell_cmd(cmd)
+                            test = thing.split(' ')
+                            for stuff in test:
+                                try:
+                                    _date = stuff.split('T')
+                                    _date1 = _date[0].split('-')
+                                    if len(_date1[0]) == 4 and len(_date1[1]) == 2 and len(_date1[2]) == 2 and _date1[0] is int:
+                                        # print(_date[0])
+                                        if str_yesterday == _date[0] and great is True:
+                                            news_list.append(news)
+                                except Exception as e:
+                                    # print('here')
+                                    # print(e)
+                                    pass
+                            # print('thing =', thing)
+                            # break
+                shell_cmd('rm news.txt')
             except Exception as e:
-                # print(e)
+                print(e)
                 pass
     except Exception as e:
-        # print(e)
+        print(e)
+        print('urbanidades todo')
         return
     td = round((time.time() - t1) / 60, 2)
-    print(site, td)
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+    logging.info('site = {}, time = {}m'.format(site.split('https://')[1].split('/')[0], td))
     return news_list
 
 

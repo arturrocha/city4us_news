@@ -8,6 +8,7 @@ import logging
 
 def main():
     logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
+    logging.info('**************** Start')
     t1 = time.time()
     url_list = ["https://www.mobilize.org.br/noticias/",
                 "https://archi.ru/en",
@@ -17,6 +18,7 @@ def main():
                 "https://www.archdaily.com/search/projects/categories/transportation?ad_name=flyout&ad_medium=categories",
                 "https://www.archdaily.com/search/projects/categories/urban-design?ad_name=flyout&ad_medium=categories",
                 "https://www.archdaily.com/search/projects/categories/urban-planning?ad_name=flyout&ad_medium=categories"]
+    url_list = ["https://urbanidades.arq.br/"]
 
     for site in url_list:
         try:
@@ -30,8 +32,9 @@ def main():
 
     while threading.activeCount() > 1:
         time.sleep(1)
-    td = time.time() - t1
-    logging.info('duration = {}'.format(round(td / 60, 2)))
+    time_list = str(round((time.time() - t1) / 60, 2)).split('.')
+    sec = round((60 * int(time_list[1])) / 100, 1)
+    logging.info('End, duration = {}m {}s'.format(time_list[0], sec))
 
 
 if __name__ == '__main__':
