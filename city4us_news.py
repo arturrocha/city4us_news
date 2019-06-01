@@ -7,7 +7,7 @@ import logging
 
 
 def main():
-    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.DEBUG)
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
     t1 = time.time()
     url_list = ["https://www.mobilize.org.br/noticias/",
                 "https://archi.ru/en",
