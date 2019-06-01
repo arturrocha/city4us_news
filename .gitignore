@@ -1,3 +1,5 @@
 __pycache__/
+__pycache*
 .idea/
 lib/telegram_token.py
+*.log
