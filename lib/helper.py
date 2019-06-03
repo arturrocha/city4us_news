@@ -18,7 +18,7 @@ class ProcessSiteThread(threading.Thread):
         news_list = set(list(results))
         bot = telegram.Bot(token=bot_token)
         logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
-        logging.info('site = {}, news = {}'.format(self.site.split('https://')[1].split('/')[0], len(news_list)))
+        logging.info('city4us: site = {}, news = {}'.format(self.site.split('https://')[1].split('/')[0], len(news_list)))
         for news in news_list:
             for user in self.telegram_chat_id:
                 time.sleep(1)

@@ -26,7 +26,6 @@ def main():
     time_list = str(round((time.time() - t1) / 60, 2)).split('.')
     sec = round((60 * int(time_list[1])) / 100, 1)
     logging.info('End, duration = {}m {}s'.format(time_list[0], sec))
-    print(len(url_list))
 
 
 if __name__ == '__main__':
