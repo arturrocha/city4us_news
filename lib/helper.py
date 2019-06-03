@@ -1,7 +1,6 @@
 import threading
 import time
 import telegram
-import sys
 import logging
 from .telegram_token import *
 from .parser import parse_archirussia, parse_caosplanejado, \
@@ -50,12 +49,4 @@ def process_site(site):
         return
     return result
 
-
-def progress(count, total, site=''):
-    bar_len = 20
-    filled_len = int(round(bar_len * count / float(total)))
-    percents = round(100.0 * count / float(total), 2)
-    bar = '!' * filled_len + '.' * (bar_len - filled_len)
-    sys.stdout.write('  %s%s [%s]  %s/%s | %s...    \r' % (percents, '%', bar, count, total, site[8:30]))
-    sys.stdout.flush()
 

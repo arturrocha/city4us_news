@@ -6,6 +6,7 @@ import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
+
 class AppURLopener(urllib.request.FancyURLopener):
     version = 'Mozilla/5.0'
 
@@ -45,7 +46,7 @@ def parse_archirussia(site):
                         soup = BeautifulSoup(response, "html.parser")
                         _date = str(soup.find_all('div', {'class': 'date'})).split(',')[0]
                         _date = _date.replace('</div>', '').replace('[<div class="date">', '')
-                        logging.info('url = {}, date = {}'.format(sub_url, _date))
+                        logging.info('date = {}, url = {}'.format(_date, sub_url))
                         if today_article(_date, 5):
                             news_list.append(sub_url)
                     except Exception as e:
@@ -78,7 +79,7 @@ def parse_caosplanejado(site):
                 _date = result_search.split('"')[3].split('T')[0]
                 description = str(soup.find_all('h1'))
                 description = description.split('">')[1].replace('</h1>]', '')
-                logging.info('url = {}, date = {}'.format(sub_url, _date))
+                logging.info('date = {}, url = {}'.format(_date, sub_url))
                 if today_article(_date, 2):
                     var = description, sub_url
                     news_list.append(var)
@@ -114,7 +115,7 @@ def parse_mobilize(site):
                     _date = c[1].split('</span>')[0]
                     description = str(soup.find_all('title'))
                     description = description.replace('<title>', '').replace('</title>', '')
-                    logging.info('url = {}, date = {}'.format(sub_url, _date))
+                    logging.info('date = {}, url = {}'.format(_date, sub_url))
                     if today_article(_date):
                         var = description, sub_url
                         news_list.append(var)
@@ -131,7 +132,7 @@ def parse_mobilize(site):
                     _date = d[1].split('</div>')[0]
                     description = str(soup.find_all('title'))
                     description = description.replace('<title>', '').replace('</title>', '')
-                    logging.info('url = {}, date = {}'.format(sub_url, _date))
+                    logging.info('date = {}, url = {}'.format(_date, sub_url))
                     if today_article(_date):
                         var = description, sub_url
                         news_list.append(var)
@@ -172,7 +173,7 @@ def parse_archdaily(site):
                                 for thing in result_search2:
                                     if 'theDate' in thing:
                                         _date = thing.split('</li>')[0].split('<li class="theDate">')[1].split('-')[1]
-                                        logging.info('url = {}, date = {}'.format(sub_url, _date))
+                                        logging.info('date = {}, url = {}'.format(_date, sub_url))
                                         if today_article(_date, 4):
                                             var = description, sub_url
                                             news_list.append(var)
@@ -217,7 +218,7 @@ def parse_citylab(site):
             _date = result_search.split('<meta content="')[1].split('T')[0]
             description = str(soup.find_all('h1'))
             description = description.split('headline">')[1].replace('</h1>]', '')
-            logging.info('url = {}, date = {}'.format(sub_url, _date))
+            logging.info('date = {}, url = {}'.format(_date, sub_url))
             if today_article(_date, 2):
                 var = description, sub_url
                 news_list.append(var)
@@ -252,7 +253,6 @@ def parse_urbanidades(site):
                     except:
                         urbanidades_news_list.append('/'.join(article))
         for news in list(set(urbanidades_news_list)):
-            print(news)
             try:
                 shell_cmd('wget {0} -O news.txt'.format(news))
                 with open('news.txt', 'r') as news_txt:
@@ -266,22 +266,16 @@ def parse_urbanidades(site):
                                     _date = stuff.split('T')
                                     _date1 = _date[0].split('-')
                                     if len(_date1[0]) == 4 and len(_date1[1]) == 2 and len(_date1[2]) == 2 and _date1[0] is int:
-                                        # print(_date[0])
-                                        if str_yesterday == _date[0] and great is True:
+                                        logging.info('date = {}, url = {}'.format(_date[0], news))
+                                        if str_yesterday == _date[0]:
                                             news_list.append(news)
-                                except Exception as e:
-                                    # print('here')
-                                    # print(e)
+                                except:
                                     pass
-                            # print('thing =', thing)
-                            # break
                 shell_cmd('rm news.txt')
             except Exception as e:
-                print(e)
-                pass
+                logging.info('urbanidades /for news in list(set', e)
     except Exception as e:
-        print(e)
-        print('urbanidades todo')
+        logging.info('urbanidades todo', e)
         return
     td = round((time.time() - t1) / 60, 2)
     logging.basicConfig(format='%(asctime)s %(message)s', filename='city4us.log', level=logging.INFO)
