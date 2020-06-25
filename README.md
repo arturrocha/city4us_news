@@ -3,8 +3,8 @@
 # city4us_news
 
 
-To receive city4us news through telegram send /start to @city4us_news_bot  
-Within 24h you will receive messages  
+~~To receive city4us news through telegram send /start to @city4us_news_bot  
+Within 24h you will receive messages~~
 
 
 Current websites   
